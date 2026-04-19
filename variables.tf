@@ -28,3 +28,9 @@ variable "private_subnet_cidr" {
     default = "11.0.2.0/24"
 }
 
+variable "sg_name" {
+type = string
+default = "IAC-SG"
+}
+
+
