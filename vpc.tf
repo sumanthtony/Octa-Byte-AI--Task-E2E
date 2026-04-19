@@ -23,7 +23,6 @@ resource "aws_subnet" "mysn2" {
   }
   vpc_id = aws_vpc.myvpc.id
   cidr_block = var.private_subnet_cidr
-  nat_gateway_id = aws_nat_gateway.nat.id  #attaching nat_gateway_id to the private private route_table
   availability_zone = "ap-south-1b"
   map_public_ip_on_launch = "false"
 }
@@ -35,9 +34,25 @@ resource "aws_internet_gateway" "myigw" {
   vpc_id = aws_vpc.myvpc.id
 }
 
-resource "aws_route_table" "myrt" {
+#ELASTIC IP (FOR NAT)
+resource "aws_eip" "nat_eip" {
+  domain = "vpc"
+}
+
+resource "aws_nat_gateway" "nat" {
   tags = {
-    Name = "iac-rt"
+    Name = "iac-nat"
+  }
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.mysn1.id
+
+  depends_on = [aws_internet_gateway.myigw]
+}
+
+#PUBLIC ROUTE TABLE
+resource "aws_route_table" "public_rt" {
+  tags = {
+    Name = "iac-public-rt"
   }
   vpc_id = aws_vpc.myvpc.id
   route {
@@ -46,12 +61,29 @@ resource "aws_route_table" "myrt" {
   }
 }
 
-resource "aws_route_table_association" "myass1" {
-  subnet_id = aws_subnet.mysn1.id
-  route_table_id = aws_route_table.myrt.id
+#PRIVATE ROUTE TABLE
+resource "aws_route_table" "private_rt" {
+  tags = {
+    Name = "iac-private-rt"
+  }
+  vpc_id = aws_vpc.myvpc.id
+  route {
+    nat_gateway_id = aws_nat_gateway.nat.id
+    cidr_block = "0.0.0.0/0"
+  }
 }
 
+#ASSOCIATION (PUBLIC)
+resource "aws_route_table_association" "myass1" {
+  subnet_id = aws_subnet.mysn1.id
+  route_table_id = aws_route_table.public_rt.id
+}
+
+#ASSOCIATION (PRIVATE)
 resource "aws_route_table_association" "myass2" {
   subnet_id = aws_subnet.mysn2.id
-  route_table_id = aws_route_table.myrt.id
+  route_table_id = aws_route_table.private_rt.id
 }
+
+
+
