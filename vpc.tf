@@ -9,30 +9,40 @@ enable_dns_hostnames = "true"
 
 resource "aws_subnet" "mysn1" {
   tags = {
-    Name = "iac-public_subnet"
+    Name = "iac-public_subnet-1"
   }
   vpc_id = aws_vpc.myvpc.id
-  cidr_block = var.public_subnet_cidr
+  cidr_block = var.public_subnet_cidr1
   availability_zone = "ap-south-1a"
   map_public_ip_on_launch = "true"
 }
 
 resource "aws_subnet" "mysn2" {
   tags = {
-    Name = "iac-private_subnet-1"
+    Name = "iac-public_subnet-2"
   }
   vpc_id = aws_vpc.myvpc.id
-  cidr_block = var.private_subnet_cidr
+  cidr_block = var.public_subnet_cidr2
   availability_zone = "ap-south-1b"
-  map_public_ip_on_launch = "false"
+  map_public_ip_on_launch = "true"
 }
 
 resource "aws_subnet" "mysn3" {
   tags = {
+    Name = "iac-private_subnet-1"
+  }
+  vpc_id = aws_vpc.myvpc.id
+  cidr_block = var.private_subnet_cidr-1
+  availability_zone = "ap-south-1b"
+  map_public_ip_on_launch = "false"
+}
+
+resource "aws_subnet" "mysn4" {
+  tags = {
     Name = "iac-private_subnet-2"
   }
   vpc_id = aws_vpc.myvpc.id
-  cidr_block = var.private_subnet_cidr
+  cidr_block = var.private_subnet_cidr-2
   availability_zone = "ap-south-1c"
   map_public_ip_on_launch = "false"
 }
@@ -85,13 +95,15 @@ resource "aws_route_table" "private_rt" {
 
 #ASSOCIATION (PUBLIC)
 resource "aws_route_table_association" "myass1" {
-  subnet_id = aws_subnet.mysn1.id
+  subnet_id      = each.value
+  for_each = toset([aws_subnet.mysn1.id, aws_subnet.mysn2.id])
   route_table_id = aws_route_table.public_rt.id
 }
 
 #ASSOCIATION (PRIVATE)
 resource "aws_route_table_association" "myass2" {
-  subnet_id = aws_subnet.mysn2.id
+  subnet_id      = each.value
+  for_each = toset([aws_subnet.mysn3.id, aws_subnet.mysn4.id])
   route_table_id = aws_route_table.private_rt.id
 }
 
