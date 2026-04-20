@@ -3,7 +3,7 @@ resource "aws_lb" "myalb" {
   name               = "terraform-alb"
   load_balancer_type = "application"
 
-  subnets         = [aws_subnet.mysn1.id]
+  subnets         = [aws_subnet.mysn1.id, aws_subnet.mysn2.id]
   security_groups = [aws_security_group.mysg.id]
 }
 

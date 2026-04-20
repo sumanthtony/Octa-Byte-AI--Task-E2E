@@ -29,7 +29,7 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 tags = {
     Name = "iac-rds-subnet-group"
   }
-subnet_ids = [aws_subnet.mysn2.id, aws_subnet.mysn3.id]
+subnet_ids = [aws_subnet.mysn3.id, aws_subnet.mysn4.id]
 }
 #Because RDS must be associated with a subnet group to decide where it runs
 

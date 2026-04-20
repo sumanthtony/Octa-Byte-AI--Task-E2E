@@ -45,7 +45,7 @@ default = "IAC-SG"
 
 variable "db_username" {
   type    = string
-  default = "admin"
+  default = "dbuser"
 }
 
 variable "db_password" {
