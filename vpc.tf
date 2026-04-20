@@ -19,11 +19,21 @@ resource "aws_subnet" "mysn1" {
 
 resource "aws_subnet" "mysn2" {
   tags = {
-    Name = "iac-private_subnet"
+    Name = "iac-private_subnet-1"
   }
   vpc_id = aws_vpc.myvpc.id
   cidr_block = var.private_subnet_cidr
   availability_zone = "ap-south-1b"
+  map_public_ip_on_launch = "false"
+}
+
+resource "aws_subnet" "mysn3" {
+  tags = {
+    Name = "iac-private_subnet-2"
+  }
+  vpc_id = aws_vpc.myvpc.id
+  cidr_block = var.private_subnet_cidr
+  availability_zone = "ap-south-1c"
   map_public_ip_on_launch = "false"
 }
 
